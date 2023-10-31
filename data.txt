@@ -1,11 +1,35 @@
-1
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-2
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, so eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-3
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-4
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco lab nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-5
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure doin reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-6
+RRQ (ReadReQuest) filename / mode
+WRQ (Write ReQuest) filename / mode
+DATA block number (num seq)
+ACK (Acknowledgement) block number (num seq)
+ERROR error code / error message
+
+
+RECIEVE
+1. send RRQ wtih filename to server
+2. server recieves and checks if file is available/has access.
+    - if an error ocurs (not found for example), send ERROR with custom code and message
+    - END
+3. server sends N block of the file
+4. client sends ACK f 33333333333333333 or the block number
+5. go back to step 3 until no more blocks are left.
+
+If ACK comes with an unexpected number, END with an error.
+Data size: 512bytes. -> if packet <512 == last packet.
+
+WRITE
+1. send WRQ wtih filename to server
+2. server recieves and checks if file is available/has access.
+    - if an error ocurs (not found for example), send ERROR with custom code and message
+    - END
+3. server sends N block of the file
+4. client sends ACK for the block number
+5. go back to step 3 until no more blocks are left.
+
+
+Timeout: if no naswer for Xseconds, resend last packet (up to 3 times)
+Order: if recieved out of order, discard and END
+File: 
+Type: if expecting ACK and got RRQ
+
+NEW TEST
