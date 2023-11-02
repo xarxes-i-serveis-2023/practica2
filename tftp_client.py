@@ -5,7 +5,7 @@ import sys
 from struct import pack, unpack
 from os.path import exists, basename
 
-logging.basicConfig(level=logging.INFO,format="%(asctime)s %(levelname)s %(message)s", stream=sys.stdout,)
+logging.basicConfig(level=logging.INFO,format="%(asctime)s %(levelname)s %(message)s", stream=sys.stdout)
 
 class TFTPController:
     TFPT_OPCODES = {"RRQ": 1, "WRQ": 2, "DATA": 3, "ACK": 4, "ERROR": 5}
@@ -95,15 +95,12 @@ class TFTPController:
     def split_file(self, local_filename: str):
         self.logger.info(f"Splitting file: {local_filename}")
 
-        splitted_file = []
         try:
             with open(local_filename, "rb") as f:
                 while True:
                     data = f.read(self.DATA_SIZE)
-                    if not data:
-                        break
-                    splitted_file.append(data)
-            return splitted_file
+                    if not data: break
+                    yield data
 
         except PermissionError:
             raise Exception(f"Permission denied! ({local_filename})")
@@ -111,8 +108,7 @@ class TFTPController:
         except FileNotFoundError:
             raise Exception(f"File not found! ({local_filename})")
 
-        except Exception as e:
-            raise e
+        except Exception as e: raise e
 
     def expect_packet(self, block_number: int, packet_type):
         self.logger.info(
@@ -140,9 +136,7 @@ class TFTPController:
         self.send_request(self.TFPT_OPCODES["WRQ"], local_filename)
         self.expect_packet(0, self.Ack)
 
-        for block_number, data in enumerate(
-            self.split_file(local_filename)
-        ):  # ,start=1): # SERVER ERROR: Data should start from 1. RFC1350
+        for block_number, data in enumerate(self.split_file(local_filename)):  # ,start=1): # SERVER ERROR: Data should start from 1. RFC1350
             self.send_data(block_number, data)
 
             # SERVER ERROR: first ACK after first DATA, is empty.
@@ -151,26 +145,23 @@ class TFTPController:
             except Exception as e:
                 if not block_number == 0:
                     raise e
+        self.logger.info(f"File uploaded: {local_filename}")
 
     def get(self, remote_filename: str) -> None:
         self.send_request(self.TFPT_OPCODES["RRQ"], remote_filename)
 
         block_number = 1
-        file_contents = b""
-
-        while True:
-            data_packet = self.expect_packet(block_number, self.Data)
-
-            file_contents += data_packet.data
-            self.send_ack(data_packet.block_number)
-
-            if len(data_packet.data) < self.DATA_SIZE:
-                break
-
-            block_number = data_packet.block_number + 1
-
         with open(basename(remote_filename), "wb") as f:
-            f.write(file_contents)
+            while True:
+                data_packet = self.expect_packet(block_number, self.Data)
+                self.send_ack(data_packet.block_number)
+
+                f.write(data_packet.data)
+                if len(data_packet.data) < self.DATA_SIZE:
+                    break
+
+                block_number = data_packet.block_number + 1
+        self.logger.info(f"File downloaded: {remote_filename}")
 
     def close(self):
         self.socket_udp.close()
@@ -188,7 +179,6 @@ if __name__ == "__main__":
     args = parser.parse_args()
     
     client = TFTPController(args.server, args.port, args.timeout)
-    
     try:
         if args.action == "put":
             client.put(args.filename)
