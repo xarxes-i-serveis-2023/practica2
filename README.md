@@ -1,72 +1,63 @@
-# TFTP Client Implementation
+# Python TFTP Client
 
-This repository contains a Python implementation of a Trivial File Transfer Protocol (TFTP) client based on the specifications outlined in the course "Networks and Services" practice assignment.
-
-## Overview
-
-The TFTP client in this repository is designed to interact with TFTP servers for transferring files using the TFTP protocol. TFTP operates on top of the UDP protocol and is used for simple file transfer scenarios where minimal complexity is desired.
+This repository contains a Python implementation of a TFTP (Trivial File Transfer Protocol) Client that can send (PUT) and receive (GET) files to and from a remote TFTP server.
 
 ## Features
 
-- Read request (RRQ) to download files from a server
-- Write request (WRQ) to upload files to a server
-- Proper handling of acknowledgment (ACK) packets
-- Error control with appropriate error messages (ERROR packets)
-- Supports the end-of-file condition based on TFTP protocol specifications
+- Command-line interface to interact with TFTP server
+- Send and receive files using TFTP protocol
+- Support for binary (octet) mode transfer
+- Built-in logging for transaction progress
+- Error handling for common TFTP errors
+- Customizable server, port, and timeout settings
 
-## Getting Started
+## Prerequisites
 
-These instructions will get you a copy of the project up and running on your local machine for development and testing purposes.
-
-### Prerequisites
-
-Before running the TFTP client, ensure you have the following installed:
 - Python 3.x
-- Access to a TFTP server (local or remote)
 
-### Installation
+## Installation
 
-Clone the repository to your local machine:
+To use the TFTP client, you can clone this repository to your local machine:
 
-```bash
+```sh
 git clone https://github.com/xarxes-i-serveis-2023/practica2.git
-cd tftp-client
+cd practica2
 ```
 
-No additional libraries are required beyond the Python Standard Library.
+No external Python packages are required, as it only uses modules from the Python Standard Library.
 
-### Usage
+## Usage
 
-To run the TFTP client, execute the `tftp_client.py` script with the appropriate command-line arguments.
+The TFTP client is a command-line tool. Below are the options available:
 
-For example, to download a file from the server:
-
-```bash
-python tftp_client.py -g <filename> -h <server_hostname>
+```sh
+python tftp_client.py <action> <filename> <server> [options]
 ```
 
-To upload a file to the server:
+- `<action>`: The action to perform: 'get' to download a file or 'put' to upload a file.
+- `<filename>`: The name of the file to upload or download.
+- `<server>`: The IP address or hostname of the TFTP server.
+- `-p`, `--port`: (Optional) The port number on the TFTP server (default is 69).
+- `-t`, `--timeout`: (Optional) The timeout in seconds for socket operations (default is 1 second).
 
-```bash
-python tftp_client.py -p <filename> -h <server_hostname>
+Example of downloading a file from a TFTP server:
+
+```sh
+python3 tftp_client.py get myfile.txt 192.168.1.10
 ```
 
-Replace `<filename>` with the name of the file you wish to transfer and `<server_hostname>` with the hostname or IP address of the TFTP server.
+Example of uploading a file to a TFTP server:
 
-## Wireshark Captures
+```sh
+python3 tftp_client.py put myfile.txt 192.168.1.10
+```
 
-This project includes Wireshark captures demonstrating the packet exchange between the client and the TFTP server. These captures provide insight into the underlying operations of the TFTP protocol.
+## Logging
 
-## Documentation
+This TFTP client is configured with logging to provide informational output on the console. It logs all the essential steps of the file transfer process, including the sending and receiving of packets, and errors.
 
-Please refer to the `memoria.pdf` file for a detailed explanation of the TFTP client implementation, examples of execution, Wireshark captures, and discussion of development challenges.
+## Contributions
 
-## Contribution
+Contributions are welcome! If you have a suggestion that would make this better, please fork the repo and create a pull request. You can also simply open an issue with the tag "enhancement".
 
-Contributions are what make the open-source community an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
-
-1. Fork the Project
-2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the Branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+Don't forget to give the project a star! Thanks again!
