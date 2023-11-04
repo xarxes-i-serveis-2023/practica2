@@ -74,7 +74,9 @@ class TFTPController:
         self.logger.info("Max retries exceeded!")
         raise Exception("Max retries exceeded!")
 
-    def transform_data(self, data: bytes):
+    def transform_data(self, data: bytes) -> Packet:
+        # transform the binary data into a packet object
+
         self.logger.info(f"Recieved data size: {len(data)}")
 
         opcode = unpack("!H", data[:2])[0]
@@ -88,7 +90,8 @@ class TFTPController:
         else:
             raise Exception("Invalid packet!")
 
-    def get_packet(self):
+    def listen_packet(self)->Packet:
+        # wait for UDP answer from the server and return a packet object
         data, _ = self.receive_data()
         return self.transform_data(data)
 
@@ -111,11 +114,13 @@ class TFTPController:
         except Exception as e: raise e
 
     def expect_packet(self, block_number: int, packet_type):
+        # receive a packet and return it. If its not an expected one, throw an exception.
+        
         self.logger.info(
             f"Expecting {packet_type.__name__.upper()} with block_number = {block_number}"
         )
 
-        answer_packet = self.get_packet()
+        answer_packet = self.listen_packet()
         if type(answer_packet) is self.Error:
             raise Exception(f"Error[{answer_packet.code}]: {answer_packet.message}")
 
@@ -130,6 +135,8 @@ class TFTPController:
         return answer_packet
 
     def put(self, local_filename: str) -> None:
+        # send file to server
+
         if not exists(local_filename):
             raise Exception(f"File '{local_filename}' not found!")
 
@@ -148,6 +155,8 @@ class TFTPController:
         self.logger.info(f"File uploaded: {local_filename}")
 
     def get(self, remote_filename: str) -> None:
+        # get file from server
+
         self.send_request(self.TFPT_OPCODES["RRQ"], remote_filename)
 
         block_number = 1
